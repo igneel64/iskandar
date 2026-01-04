@@ -38,7 +38,6 @@ func (i *InMemoryConnectionStore) RegisterConnection(conn *websocket.Conn) (stri
 func (i *InMemoryConnectionStore) GetConnection(subdomainKey string) (*shared.SafeWebSocketConn, error) {
 	i.mu.RLock()
 	defer i.mu.RUnlock()
-	fmt.Println(i.connMap)
 	conn, exists := i.connMap[subdomainKey]
 	if !exists {
 		return nil, fmt.Errorf("subdomain not found")
