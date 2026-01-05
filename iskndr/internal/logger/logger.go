@@ -12,12 +12,10 @@ func Initialize(logToStdout bool) {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
 	if !logToStdout {
-		// Disable all logging when flag is not present
 		zerolog.SetGlobalLevel(zerolog.Disabled)
 		return
 	}
 
-	// Enable debug level logging when flag is present
 	log.Logger = log.Output(zerolog.ConsoleWriter{
 		Out:        os.Stdout,
 		TimeFormat: time.RFC3339,
@@ -101,8 +99,4 @@ func Error(msg string, err error) {
 	log.Error().
 		Err(err).
 		Msg(msg)
-}
-
-func Info(msg string) {
-	log.Info().Msg(msg)
 }
