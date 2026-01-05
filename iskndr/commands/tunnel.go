@@ -77,7 +77,7 @@ The destination can be specified as:
 			// Handle Ctrl+C gracefully
 			go func() {
 				<-sigChan
-				fmt.Println("\nReceived interrupt signal, shutting down...")
+				fmt.Println("\nShutting down tunnel...")
 				if program != nil {
 					program.Quit()
 				}
@@ -102,7 +102,7 @@ The destination can be specified as:
 		},
 	}
 
-	tunnelCmd.Flags().StringVar(&serverUrl, "server", "", "Host of the tunnel server to connect to. Host will be used with ws:// protocol.")
+	tunnelCmd.Flags().StringVar(&serverUrl, "server", "", "Tunnel server URL (e.g., localhost:8080, https://tunnel.example.com).")
 	tunnelCmd.Flags().BoolVar(&enableLogging, "logging", false, "Enable structured logging to stdout")
 	if err := tunnelCmd.MarkFlagRequired("server"); err != nil {
 		panic(err)
