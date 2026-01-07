@@ -40,7 +40,6 @@ var (
 type Model struct {
 	Status           string
 	Version          string
-	Region           string
 	LocalDestination string
 	PublicURL        string
 	ServerURL        string
@@ -74,9 +73,6 @@ func (m Model) View() string {
 		labelStyle.Render("Version       "),
 		valueStyle.Render(m.Version))
 	s += fmt.Sprintf("%s %s\n",
-		labelStyle.Render("Region        "),
-		valueStyle.Render(m.Region))
-	s += fmt.Sprintf("%s %s\n",
 		labelStyle.Render("Tunnel Server "),
 		valueStyle.Render(m.ServerURL))
 
@@ -94,7 +90,6 @@ func InitUi(destinationAddress, serverUrl, subdomain string) *tea.Program {
 	model := NewModel()
 	model.Status = "online"
 	model.Version = "0.1.0"
-	model.Region = "Local"
 	model.LocalDestination = destinationAddress
 	model.PublicURL = subdomain
 	model.ServerURL = serverUrl

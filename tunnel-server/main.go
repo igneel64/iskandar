@@ -1,40 +1,30 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"os"
 
+	"github.com/igneel64/iskandar/server/internal/config"
 	"github.com/igneel64/iskandar/server/internal/logger"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	logger.Initialize(true)
+	_ = godotenv.Load()
+	cfg, err := config.LoadConfigFromEnv()
+	if err != nil {
+		log.Fatalf("Failed to load environment config: %v", err)
+	}
 
+	logger.Initialize(cfg.Logging)
+
+	publicURLBase := cfg.BaseScheme + "://" + cfg.BaseDomain
 	connectionStore := NewInMemoryConnectionStore()
 	requestManager := NewInMemoryRequestManager()
 
-	// Read configuration from environment
-	baseScheme := os.Getenv("ISKNDR_BASE_SCHEME")
-	if baseScheme == "" {
-		baseScheme = "http"
-	}
+	server := NewIskndrServer(publicURLBase, connectionStore, requestManager)
 
-	baseDomain := os.Getenv("ISKNDR_BASE_DOMAIN")
-	if baseDomain == "" {
-		baseDomain = "localhost.direct:8080"
-	}
-
-	port := os.Getenv("ISKNDR_PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	// Construct full public URL base
-	publicURLBase := baseScheme + "://" + baseDomain
-
-	s := NewIskndrServer(publicURLBase, connectionStore, requestManager)
-
-	logger.ServerStarted(8080)
-	log.Fatal(http.ListenAndServe(":"+port, s))
+	logger.ServerStarted(cfg.Port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), server))
 }
