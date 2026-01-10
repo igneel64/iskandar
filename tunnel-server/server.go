@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -59,6 +60,11 @@ func (i *IskndrServer) handleTunnelConnect(w http.ResponseWriter, r *http.Reques
 
 	subdomainKey, err = i.connStore.RegisterConnection(con)
 	if err != nil {
+		if errors.Is(err, ErrMaxTunnelsReached) {
+			logger.MaxTunnelsReached()
+			http.Error(w, "Server tunnel capacity reached", http.StatusServiceUnavailable)
+			return
+		}
 		logger.TunnelRegistrationFailed(err)
 		http.Error(w, "Failed to register connection", http.StatusInternalServerError)
 		return
@@ -112,9 +118,6 @@ func (i *IskndrServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	requestId := uuid.New().String()
 
-	ch := i.requestManager.RegisterRequest(requestId)
-	defer i.requestManager.RemoveRequest(requestId)
-
 	message := &protocol.Message{
 		Type:    "request",
 		Id:      requestId,
@@ -132,16 +135,19 @@ func (i *IskndrServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	logger.RequestForwarded(requestId, subdomain)
 
+	ch := i.requestManager.RegisterRequest(requestId)
+	defer i.requestManager.RemoveRequest(requestId)
+
 	select {
 	case response, ok := <-ch:
+		duration := time.Since(startTime)
+
 		if !ok {
-			duration := time.Since(startTime)
 			logger.ChannelClosed(requestId, duration)
 			http.Error(w, "Failed to get response from tunnel", http.StatusInternalServerError)
 			return
 		}
 
-		duration := time.Since(startTime)
 		logger.HTTPResponse(subdomain, r.Method, r.RequestURI, response.Status, duration, requestId)
 
 		for k, v := range response.Headers {

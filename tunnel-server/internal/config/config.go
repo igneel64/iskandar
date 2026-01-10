@@ -7,6 +7,7 @@ type Config struct {
 	BaseDomain string `env:"ISKNDR_BASE_DOMAIN" envDefault:"localhost.direct:8080"`
 	Port       int    `env:"ISKNDR_PORT" envDefault:"8080"`
 	Logging    bool   `env:"ISKNDR_LOGGING" envDefault:"true"`
+	MaxTunnels int    `env:"ISKNDR_MAX_TUNNELS" envDefault:"100"`
 }
 
 func LoadConfigFromEnv() (*Config, error) {

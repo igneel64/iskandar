@@ -37,9 +37,10 @@ func createWSServerConnection(t *testing.T) *websocket.Conn {
 }
 
 func TestInMemoryConnectionStore(t *testing.T) {
+	maxConnections := 10
 	t.Run("registers connection", func(t *testing.T) {
 		t.Parallel()
-		connectionStore := NewInMemoryConnectionStore()
+		connectionStore := NewInMemoryConnectionStore(maxConnections)
 		conn := createWSServerConnection(t)
 		subdomain, err := connectionStore.RegisterConnection(conn)
 		assert.NoError(t, err)
@@ -50,7 +51,7 @@ func TestInMemoryConnectionStore(t *testing.T) {
 
 	t.Run("gets registered connection", func(t *testing.T) {
 		t.Parallel()
-		connectionStore := NewInMemoryConnectionStore()
+		connectionStore := NewInMemoryConnectionStore(maxConnections)
 		conn := createWSServerConnection(t)
 		subdomain, err := connectionStore.RegisterConnection(conn)
 		require.NoError(t, err)
@@ -63,14 +64,14 @@ func TestInMemoryConnectionStore(t *testing.T) {
 
 	t.Run("returns error for non-existent connection", func(t *testing.T) {
 		t.Parallel()
-		connectionStore := NewInMemoryConnectionStore()
+		connectionStore := NewInMemoryConnectionStore(maxConnections)
 		_, err := connectionStore.GetConnection("nonexistent")
 		assert.Error(t, err)
 	})
 
 	t.Run("removes registered connection", func(t *testing.T) {
 		t.Parallel()
-		connectionStore := NewInMemoryConnectionStore()
+		connectionStore := NewInMemoryConnectionStore(maxConnections)
 		conn := createWSServerConnection(t)
 		subdomain, err := connectionStore.RegisterConnection(conn)
 		require.NoError(t, err)
@@ -79,5 +80,14 @@ func TestInMemoryConnectionStore(t *testing.T) {
 		_, err = connectionStore.GetConnection(subdomain)
 		assert.Error(t, err)
 		assert.NotContains(t, connectionStore.connMap, subdomain)
+	})
+
+	t.Run("enforces maximum connections", func(t *testing.T) {
+		t.Parallel()
+		connectionStore := NewInMemoryConnectionStore(0)
+		conn := createWSServerConnection(t)
+		_, err := connectionStore.RegisterConnection(conn)
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, ErrMaxTunnelsReached)
 	})
 }

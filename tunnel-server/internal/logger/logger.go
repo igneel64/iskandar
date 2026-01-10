@@ -143,3 +143,8 @@ func WebSocketCloseFailed(subdomain string, err error) {
 		Err(err).
 		Msg("Failed to close WebSocket connection")
 }
+
+func MaxTunnelsReached() {
+	log.Error().
+		Msg("Maximum number of tunnels reached")
+}

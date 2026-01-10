@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"math/big"
 	"sync"
@@ -16,24 +17,33 @@ type ConnectionStore interface {
 	RemoveConnection(subdomainKey string)
 }
 
+var ErrMaxTunnelsReached = errors.New("maximum number of tunnels reached")
+
 type InMemoryConnectionStore struct {
-	connMap map[string]*shared.SafeWebSocketConn
-	mu      sync.RWMutex
+	connMap    map[string]*shared.SafeWebSocketConn
+	mu         sync.RWMutex
+	maxTunnels int
 }
 
-func NewInMemoryConnectionStore() *InMemoryConnectionStore {
+func NewInMemoryConnectionStore(maxTunnels int) *InMemoryConnectionStore {
 	return &InMemoryConnectionStore{
-		connMap: make(map[string]*shared.SafeWebSocketConn),
+		connMap:    make(map[string]*shared.SafeWebSocketConn),
+		maxTunnels: maxTunnels,
 	}
 }
 
 func (i *InMemoryConnectionStore) RegisterConnection(conn *websocket.Conn) (string, error) {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+
+	if len(i.connMap) >= i.maxTunnels {
+		return "", ErrMaxTunnelsReached
+	}
+
 	subdomainKey, err := generateSubdomainKey()
 	if err != nil {
 		return "", err
 	}
-	i.mu.Lock()
-	defer i.mu.Unlock()
 	i.connMap[subdomainKey] = shared.NewSafeWebSocketConn(conn)
 	return subdomainKey, nil
 }
