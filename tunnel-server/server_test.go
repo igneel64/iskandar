@@ -72,6 +72,7 @@ func TestServer(t *testing.T) {
 
 		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
 		require.NoError(t, err, "should connect to websocket")
+		//nolint:errcheck
 		defer conn.Close()
 
 		var regMsg protocol.RegisterTunnelMessage
@@ -106,6 +107,7 @@ func TestHandleRequest(t *testing.T) {
 		server.handleRequest(response, req)
 
 		result := response.Result()
+		//nolint:errcheck
 		defer result.Body.Close()
 
 		assert.Equal(t, http.StatusBadRequest, result.StatusCode)
@@ -135,6 +137,7 @@ func TestHandleRequest(t *testing.T) {
 		server.handleRequest(response, req)
 
 		result := response.Result()
+		//nolint:errcheck
 		defer result.Body.Close()
 
 		assert.Equal(t, http.StatusNotFound, result.StatusCode)
@@ -195,6 +198,7 @@ func TestWriteProxiedResponse(t *testing.T) {
 		require.NoError(t, err)
 
 		result := response.Result()
+		//nolint:errcheck
 		defer result.Body.Close()
 
 		assert.Equal(t, 200, result.StatusCode)
@@ -236,6 +240,7 @@ func TestWriteProxiedResponse(t *testing.T) {
 		require.NoError(t, err)
 
 		result := response.Result()
+		//nolint:errcheck
 		defer result.Body.Close()
 
 		assert.Equal(t, 200, result.StatusCode)
@@ -287,6 +292,7 @@ func TestWriteProxiedResponse(t *testing.T) {
 		require.NoError(t, err)
 
 		result := response.Result()
+		//nolint:errcheck
 		defer result.Body.Close()
 
 		assert.Equal(t, 200, result.StatusCode)

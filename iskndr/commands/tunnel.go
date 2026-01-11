@@ -105,7 +105,7 @@ func terminalRestoration() func() {
 	oldState, err := term.GetState(int(os.Stdin.Fd()))
 	if err == nil {
 		return func() {
-			term.Restore(int(os.Stdin.Fd()), oldState)
+			_ = term.Restore(int(os.Stdin.Fd()), oldState)
 		}
 	}
 	return func() {}

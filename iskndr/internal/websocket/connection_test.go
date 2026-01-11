@@ -23,6 +23,7 @@ func TestWriteSafeWSDialer_Dial_Success(t *testing.T) {
 			t.Errorf("Failed to upgrade connection: %v", err)
 			return
 		}
+		//nolint:errcheck
 		defer conn.Close()
 
 		// Keep connection open for the test
@@ -42,5 +43,6 @@ func TestWriteSafeWSDialer_Dial_Success(t *testing.T) {
 	assert.NoError(t, err, "Dial should succeed")
 	assert.NotNil(t, conn, "Connection should not be nil")
 
+	//nolint:errcheck
 	conn.Close()
 }

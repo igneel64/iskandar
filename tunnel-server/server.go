@@ -242,5 +242,5 @@ func (i *IskndrServer) writeProxiedResponse(w http.ResponseWriter, ch MessageCha
 
 func (i *IskndrServer) handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	_, _ = w.Write([]byte("OK"))
 }
