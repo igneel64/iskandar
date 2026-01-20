@@ -47,7 +47,7 @@ func (i *InMemoryRequestManager) RegisterRequest(requestId, subdomain string) (M
 		return nil, ErrMaxRequestsPerTunnel
 	}
 
-	requestChannel := make(MessageChannel)
+	requestChannel := make(MessageChannel, 5)
 	i.requestChannelMap[requestId] = requestChannel
 	i.requestCounts[subdomain]++
 	return requestChannel, nil

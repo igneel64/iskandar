@@ -14,7 +14,7 @@ type Logger interface {
 	TunnelRegistrationFailed(err error)
 	HTTPRequestReceived(subdomain, method, path, remoteAddr string)
 	TunnelNotFound(subdomain, host string)
-	RequestForwarded(requestID, subdomain string)
+	RequestForwarded(requestID, requestURI, subdomain string)
 	RequestForwardFailed(requestID, subdomain string, err error)
 	HTTPResponse(subdomain, method, path string, status int, duration time.Duration, requestID string)
 	StreamingStarted(requestID string, status int, bodySize int)
@@ -93,9 +93,10 @@ func (l *ZerologLogger) TunnelNotFound(subdomain, host string) {
 		Msg("Tunnel not found")
 }
 
-func (l *ZerologLogger) RequestForwarded(requestID, subdomain string) {
+func (l *ZerologLogger) RequestForwarded(requestID, requestURI, subdomain string) {
 	l.log.Info().
 		Str("request_id", requestID).
+		Str("request_uri", requestURI).
 		Str("subdomain", subdomain).
 		Msg("Request forwarded to tunnel")
 }

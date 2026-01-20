@@ -151,7 +151,7 @@ func (i *IskndrServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	i.logger.RequestForwarded(requestId, subdomain)
+	i.logger.RequestForwarded(requestId, r.RequestURI, subdomain)
 
 	ch, err := i.requestManager.RegisterRequest(requestId, subdomain)
 	if err != nil {

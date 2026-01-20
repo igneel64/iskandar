@@ -135,6 +135,7 @@ func (i *IskndrClient) sendResponse(requestMsg *protocol.Message, destinationAdd
 				break
 			} else if responseMsg.Done {
 				logger.ResponseSent(requestMsg.Id, responseMsg.Status)
+				break
 			}
 		}
 
